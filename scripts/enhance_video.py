@@ -23,7 +23,6 @@ logger.add("logs/enhancement_{time}.log", rotation="100 MB")
 
 def check_gpu():
     """Check if GPU is available and log info"""
-    if torch.cuda.is_available():
     if config.DEVICE.type == "xpu":
         logger.info(f"✓ Intel XPU detected: {torch.xpu.get_device_name(0)}")
         return True
