@@ -1,7 +1,10 @@
 import torch
 import torch.nn as nn
 
-device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+device = torch.device(
+    "xpu" if (hasattr(torch, "xpu") and torch.xpu.is_available())
+    else ("cuda" if torch.cuda.is_available() else "cpu")
+)
 backwarp_tenGrid = {}
 
 
