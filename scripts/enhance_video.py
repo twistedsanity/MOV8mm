@@ -125,9 +125,9 @@ def apply_setup_config(setup_config, args):
 
 def check_gpu():
     """Check if GPU is available and log info"""
-    if torch.cuda.is_available():
-        gpu_name = torch.cuda.get_device_name(0)
-        gpu_memory = torch.cuda.get_device_properties(0).total_memory / 1024**3
+    if torch.xpu.is_available():
+        gpu_name = torch.xpu.get_device_name(0)
+        gpu_memory = torch.xpu.get_device_properties(0).total_memory / 1024**3
         logger.info(f"✓ GPU detected: {gpu_name} ({gpu_memory:.1f} GB VRAM)")
         return True
     else:
