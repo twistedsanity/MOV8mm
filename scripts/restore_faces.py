@@ -53,7 +53,7 @@ def restore_faces(input_path, output_path=None):
     if not model_path.exists():
         logger.info("Downloading GFPGAN model (first time only)...")
         import urllib.request
-        model_url = "https://github.com/TencentARC/GFPGAN/releases/download/v1.3.0/GFPGANv1.4.pth"
+        model_url = "https://github.com/TencentARC/GFPGAN/releases/download/v1.3.4/GFPGANv1.4.pth"
         model_path.parent.mkdir(parents=True, exist_ok=True)
         urllib.request.urlretrieve(model_url, model_path)
         logger.info("Model downloaded successfully!")
