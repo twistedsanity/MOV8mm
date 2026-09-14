@@ -58,17 +58,24 @@ def upscale_realesrgan(input_path, output_path, scale):
     
     Returns:
         Path to upscaled video
-"""
-
-# Check GPU availability
-if torch.cuda.is_available():
-if config.DEVICE.type == "xpu":
-    logger.info(f"✓ Intel XPU available: {torch.xpu.get_device_name(0)}")
-elif torch.cuda.is_available():
-    logger.info(f"✓ GPU available: {torch.cuda.get_device_name(0)}")
-    logger.info(f"  CUDA version: {torch.version.cuda}")
-    logger.info(f"  GPU memory: {torch.cuda.get_device_properties(0).total_memory / 1024**3:.1f} GB")
-else:
+    """
+    
+    # Check GPU availability
+    if config.DEVICE.type == "xpu":
+        logger.info(f"✓ Intel XPU available: {torch.xpu.get_device_name(0)}")
+    elif torch.cuda.is_available():
+        logger.info(f"✓ GPU available: {torch.cuda.get_device_name(0)}")
+        logger.info(f"  CUDA version: {torch.version.cuda}")
+        logger.info(f"  GPU memory: {torch.cuda.get_device_properties(0).total_memory / 1024**3:.1f} GB")
+    else:
+        logger.warning("⚠ No GPU detected - processing will be slow!")
+    
+    try:
+        from basicsr.archs.rrdbnet_arch import RRDBNet
+        from realesrgan import RealESRGANer
+        
+        # Load model
+        if scale == 4:
             model = RRDBNet(num_in_ch=3, num_out_ch=3, num_feat=64, num_block=23, num_grow_ch=32, scale=4)
             model_path = Path(config.MODELS_DIR) / 'RealESRGAN_x4plus.pth'
         else:  # 2x
@@ -76,22 +83,18 @@ else:
             model_path = Path(config.MODELS_DIR) / 'RealESRGAN_x2plus.pth'
         
         # Move model to GPU if available
-        if torch.cuda.is_available() and config.USE_GPU:
-            model = model.cuda()
-            logger.info("✓ Model moved to GPU")
         if config.DEVICE.type != "cpu":
-        model = model.to(config.DEVICE)
-        logger.info(f"✓ Model moved to {config.DEVICE}")
-            
+            model = model.to(config.DEVICE)
+            logger.info(f"✓ Model moved to {config.DEVICE}")
+        
         # Check if model exists
         if not model_path.exists():
             logger.error(f"Model not found: {model_path}")
-
+            logger.info("Run setup.py to download models, or download manually from:")
             logger.info("https://github.com/xinntao/Real-ESRGAN/releases")
             return input_path
         
         # Initialize upsampler
-        device = 'cuda' if torch.cuda.is_available() and config.USE_GPU else 'cpu'
         device = config.DEVICE
         half_enabled = device.type == "cuda"
         logger.info(f"Using device: {device}")
@@ -103,15 +106,13 @@ else:
             tile=config.UPSCALE_TILE_SIZE,
             tile_pad=config.UPSCALE_TILE_PAD,
             pre_pad=config.UPSCALE_PRE_PAD,
-            half=True if device == 'cuda' else False,
-            gpu_id=config.GPU_ID if device == 'cuda' else None,
             half=half_enabled,
             gpu_id=config.GPU_ID if device.type == 'cuda' else None,
             device=device
         )
         
         logger.info(f"Model loaded: {model_path.name}")
-        logger.info(f"GPU ID: {config.GPU_ID}, Half precision: {device == 'cuda'}")
+        logger.info(f"Device: {device}, Half precision: {half_enabled}")
         
         # Open input video
         cap = cv2.VideoCapture(str(input_path))
