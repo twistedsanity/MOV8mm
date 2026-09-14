@@ -1,0 +1,56 @@
+# Exclude local media, models and logs from the Docker build context
+# Local media
+input_videos/*
+!input_videos/.gitkeep
+output_videos/*
+!output_videos/.gitkeep
+temp/*
+!temp/.gitkeep
+logs/*
+!logs/.gitkeep
+preview_frames/
+# AI models (downloaded during the build)
+models/*.pth
+models/*.pkl
+models/*.onnx
+!models/.gitkeep
+# Test videos
+*.mp4
+*.avi
+*.mov
+*.mkv
+*.flv
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+venv/
+env/
+ENV/
+build/
+dist/
+wheels/
+*.egg-info/
+*.egg
+.eggs/
+# IDE / OS
+.vscode/
+.idea/
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
+desktop.ini
+# Git / CI
+.git
+.github
+.gitignore
+# Jupyter
+.ipynb_checkpoints/
+*.ipynb
+# Environment
+.env
+# Temporary
+*.tmp
+*.bak
