@@ -1,11 +1,7 @@
 # 8mm Film Enhancement Configuration
 # Adjust these settings based on your hardware and quality preferences
 
-def get_device():
-    if hasattr(torch, "xpu") and torch.xpu.is_available():
-        return torch.device("xpu")
-    return torch.device("cpu")
-DEVICE = get_device()
+import torch
 
 # =============================================================================
 # HARDWARE SETTINGS
@@ -17,6 +13,37 @@ BATCH_SIZE = 1  # Increase if you have more VRAM (RTX 4060 should handle 1-2)
 
 # Memory management
 MAX_MEMORY_GB = 8  # Adjust based on your available RAM
+
+# =============================================================================
+# DEVICE DETECTION (Intel Arc / NVIDIA / CPU)
+# =============================================================================
+# Automatically selects the best available compute device.
+# Priority: Intel XPU (Arc) > NVIDIA CUDA > CPU.
+
+def get_device():
+    if hasattr(torch, "xpu") and torch.xpu.is_available():
+        return torch.device("xpu")
+    if torch.cuda.is_available():
+        return torch.device(f"cuda:{GPU_ID}")
+    return torch.device("cpu")
+
+DEVICE = get_device()
+
+# On Intel Arc: transparently redirect torch.cuda.* helpers used by third-party
+# libraries (realesrgan, basicsr, gfpgan) to their torch.xpu.* equivalents so
+# they do not fail or silently fall back to CPU.
+if DEVICE.type == "xpu":
+    torch.cuda.is_available = torch.xpu.is_available
+    torch.cuda.device_count = torch.xpu.device_count
+    torch.cuda.current_device = torch.xpu.current_device
+    torch.cuda.get_device_name = torch.xpu.get_device_name
+    torch.cuda.get_device_properties = torch.xpu.get_device_properties
+    torch.cuda.empty_cache = torch.xpu.empty_cache
+    torch.cuda.memory_reserved = torch.xpu.memory_reserved
+    torch.cuda.synchronize = torch.xpu.synchronize
+
+# =============================================================================
+
 
 # =============================================================================
 # VIDEO PROCESSING SETTINGS  
