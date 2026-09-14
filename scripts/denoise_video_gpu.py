@@ -29,7 +29,7 @@ def bilateral_filter_torch(image_tensor, d=9, sigma_color=75, sigma_space=75):
         sigma_space: filter sigma in coordinate space
     """
     # Simple approximation using Gaussian blur (faster than true bilateral)
-    # For true bilateral, we'd need custom CUDA kernels
+    # For true bilateral, we'd need custom xpu kernels
     smoothed = F.avg_pool2d(image_tensor, kernel_size=d, stride=1, padding=d//2)
     return smoothed
 
@@ -153,12 +153,12 @@ def denoise_video_gpu(input_path, output_path=None, strength=0.7, temporal=True,
     output_path.parent.mkdir(parents=True, exist_ok=True)
     
     # Check GPU
-    if not torch.cuda.is_available():
-        logger.error("GPU not available! This script requires CUDA.")
+    if not torch.xpu.is_available():
+        logger.error("GPU not available! This script requires xpu.")
         return None
     
-    device = torch.device(f"cuda:{config.GPU_ID}")
-    gpu_name = torch.cuda.get_device_name(0)
+    device = torch.device(f"xpu:{config.GPU_ID}")
+    gpu_name = torch.xpu.get_device_name(0)
     logger.info(f"Using GPU: {gpu_name}")
     
     logger.info(f"Denoising {input_path.name} on GPU (strength: {strength}, method: {method}, temporal: {temporal})...")
