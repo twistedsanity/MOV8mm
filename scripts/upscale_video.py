@@ -61,10 +61,10 @@ def upscale_realesrgan(input_path, output_path, scale):
     """
     
     # Check GPU availability
-    if torch.cuda.is_available():
-        logger.info(f"✓ GPU available: {torch.cuda.get_device_name(0)}")
-        logger.info(f"  CUDA version: {torch.version.cuda}")
-        logger.info(f"  GPU memory: {torch.cuda.get_device_properties(0).total_memory / 1024**3:.1f} GB")
+    if torch.xpu.is_available():
+        logger.info(f"✓ GPU available: {torch.xpu.get_device_name(0)}")
+        logger.info(f"  XPU version: {torch.version.xpu}")
+        logger.info(f"  GPU memory: {torch.xpu.get_device_properties(0).total_memory / 1024**3:.1f} GB")
     else:
         logger.warning("⚠ No GPU detected - processing will be slow!")
     
@@ -81,8 +81,8 @@ def upscale_realesrgan(input_path, output_path, scale):
             model_path = Path(config.MODELS_DIR) / 'RealESRGAN_x2plus.pth'
         
         # Move model to GPU if available
-        if torch.cuda.is_available() and config.USE_GPU:
-            model = model.cuda()
+        if torch.xpu.is_available() and config.USE_GPU:
+            model = model.xpu()
             logger.info("✓ Model moved to GPU")
         
         # Check if model exists
@@ -93,7 +93,7 @@ def upscale_realesrgan(input_path, output_path, scale):
             return input_path
         
         # Initialize upsampler
-        device = 'cuda' if torch.cuda.is_available() and config.USE_GPU else 'cpu'
+        device = 'xpu' if torch.xpu.is_available() and config.USE_GPU else 'cpu'
         logger.info(f"Using device: {device}")
         
         upsampler = RealESRGANer(
@@ -103,13 +103,13 @@ def upscale_realesrgan(input_path, output_path, scale):
             tile=config.UPSCALE_TILE_SIZE,
             tile_pad=config.UPSCALE_TILE_PAD,
             pre_pad=config.UPSCALE_PRE_PAD,
-            half=True if device == 'cuda' else False,
-            gpu_id=config.GPU_ID if device == 'cuda' else None,
+            half=True if device == 'xpu' else False,
+            gpu_id=config.GPU_ID if device == 'xpu' else None,
             device=device
         )
         
         logger.info(f"Model loaded: {model_path.name}")
-        logger.info(f"GPU ID: {config.GPU_ID}, Half precision: {device == 'cuda'}")
+        logger.info(f"GPU ID: {config.GPU_ID}, Half precision: {device == 'xpu'}")
         
         # Open input video
         cap = cv2.VideoCapture(str(input_path))
