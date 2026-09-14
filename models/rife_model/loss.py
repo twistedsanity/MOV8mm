@@ -4,7 +4,10 @@ import torch.nn as nn
 import torch.nn.functional as F
 import torchvision.models as models
 
-device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+device = torch.device(
+    "xpu" if (hasattr(torch, "xpu") and torch.xpu.is_available())
+    else ("cuda" if torch.cuda.is_available() else "cpu")
+)
 
 
 class EPE(nn.Module):
