@@ -50,8 +50,8 @@ def remove_defects_ai(input_path, output_path=None, denoise_strength=0.5):
     output_path.parent.mkdir(parents=True, exist_ok=True)
     
     # Check GPU availability
-    use_gpu = config.USE_GPU and torch.cuda.is_available()
-    device = torch.device(f"cuda:{config.GPU_ID}" if use_gpu else "cpu")
+    use_gpu = config.USE_GPU and torch.xpu.is_available()
+    device = torch.device(f"xpu:{config.GPU_ID}" if use_gpu else "cpu")
     
     logger.info(f"AI film restoration on {input_path.name} using device: {device}...")
     logger.info(f"Denoise strength: {denoise_strength}")
@@ -75,7 +75,7 @@ def remove_defects_ai(input_path, output_path=None, denoise_strength=0.5):
         tile=2048,  # Large tiles for maximum GPU utilization (same as upscaling)
         tile_pad=10,
         pre_pad=0,
-        half=True if device.type == 'cuda' else False,
+        half=True if device.type == 'xpu' else False,
         device=device
     )
     
