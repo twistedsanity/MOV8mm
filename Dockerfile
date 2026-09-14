@@ -1,24 +1,19 @@
-# Use an official Python base image as a starting point
-FROM python:3.9-slim
+# Intel XPU image: Ubuntu 22.04 + oneAPI runtime + Level Zero loader baked in
+FROM intel/intel-extension-for-pytorch:2.5.10-xpu
 
-# Set working directory to /app
+ENV DEBIAN_FRONTEND=noninteractive \
+    PYTHONUNBUFFERED=1 \
+    SYCL_CACHE_PERSISTENT=1 \
+    ZE_AFFINITY_MASK=0
+
+RUN pip install --no-cache-dir torch==2.5.1 torchvision==0.20.1 torchaudio==2.5.1 \
+        --index-url https://download.pytorch.org/whl/xpu \
+ && pip install --no-cache-dir -r requirements-intel.txt
+
 WORKDIR /app
+COPY . .
+RUN echo "n" | python setup.py \
+ && wget -q -O models/GFPGANv1.4.pth \
+        https://github.com/TencentARC/GFPGAN/releases/download/v1.3.4/GFPGANv1.4.pth
 
-# Copy required files from MOV8MM repository
-COPY scripts/ /app/scripts/
-COPY models/ /app/models/
-COPY input_videos/ /app/input_videos/
-COPY output_videos/ /app/output_videos/
-
-# Install dependencies
-RUN pip install -r requirements.txt
-RUN conda install -c conda-forge ffmpeg
-
-# Define environment variables
-ENV GPU_ID 0
-ENV CUDA_HOME /usr/local/cuda
-ENV DENOISE_STRENGTH 0.7
-ENV UPSCALE_TILE_SIZE 2048
-
-# Run the pipeline
-CMD ["python", "scripts/enhance_video.py", "input_videos/MyFilm.mp4", "--cut", "0", "60", "--steps", "stabilization,deflicker,denoising,upscale,face_restoration", "--upscale", "2", "-o", "output_videos/MyFilm_restored.mp4"]
+CMD ["bash"]
