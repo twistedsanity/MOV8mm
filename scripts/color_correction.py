@@ -236,7 +236,11 @@ def correct_video_colors(input_path, output_path=None,
     output_path.parent.mkdir(parents=True, exist_ok=True)
     
     # Check GPU
-    if torch.cuda.is_available():
+    if config.DEVICE.type == "xpu":
+        device = config.DEVICE
+        gpu_name = torch.xpu.get_device_name(0) if torch.xpu.device_count() else "Intel XPU"
+        logger.info(f"Using GPU: {gpu_name}")
+    elif torch.cuda.is_available():
         device = torch.device(f"cuda:{config.GPU_ID}")
         gpu_name = torch.cuda.get_device_name(0)
         logger.info(f"Using GPU: {gpu_name}")
