@@ -1,6 +1,12 @@
 # 8mm Film Enhancement Configuration
 # Adjust these settings based on your hardware and quality preferences
 
+def get_device():
+    if hasattr(torch, "xpu") and torch.xpu.is_available():
+        return torch.device("xpu")
+    return torch.device("cpu")
+DEVICE = get_device()
+
 # =============================================================================
 # HARDWARE SETTINGS
 # =============================================================================
