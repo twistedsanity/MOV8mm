@@ -1,7 +1,7 @@
 """
 Professional frame interpolation using PyTorch
 Fast GPU-accelerated optical flow-based interpolation
-Alternative to FILM that works with existing PyTorch/xpu setup
+Alternative to FILM that works with existing PyTorch/CUDA setup
 """
 
 import sys
@@ -124,13 +124,16 @@ def interpolate_video_gpu(input_path, output_path=None, target_fps=60):
     output_path.parent.mkdir(parents=True, exist_ok=True)
     
     # Check GPU
-    if not torch.xpu.is_available():
-        logger.error("GPU not available! This script requires xpu for best performance.")
+    if config.DEVICE.type == "cpu":
+        logger.error("GPU not available! This script works best with a GPU.")
         logger.info("Will use CPU but it will be slower...")
         device = torch.device("cpu")
     else:
-        device = torch.device(f"xpu:{config.GPU_ID}")
-        gpu_name = torch.xpu.get_device_name(0)
+        device = config.DEVICE
+        if device.type == "xpu":
+            gpu_name = torch.xpu.get_device_name(0) if torch.xpu.device_count() else "Intel XPU"
+    else:
+        gpu_name = torch.cuda.get_device_name(0)
         logger.info(f"Using GPU: {gpu_name}")
     
     # Open video
