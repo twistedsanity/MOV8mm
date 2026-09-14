@@ -6,9 +6,9 @@
 # ============================================================================
 # Core ML/AI frameworks
 # ============================================================================
-torch==2.5.1
-torchvision==0.20.1
-torchaudio==2.5.1
+#torch==2.5.1
+#torchvision==0.20.1
+#torchaudio==2.5.1
 
 # ============================================================================
 # Computer Vision and Video Processing
@@ -36,9 +36,9 @@ lpips==0.1.4             # Perceptual loss metrics for AI models
 # ============================================================================
 # Frame Interpolation (Professional - Google FILM)
 # ============================================================================
-tensorflow==2.15.0       # TensorFlow for FILM model
-tensorflow-hub           # Access to pre-trained FILM model
-cupy-cuda12x==13.6.0     # For CUDA 12.x (GPU acceleration)
+#tensorflow==2.15.0       # TensorFlow for FILM model
+#tensorflow-hub           # Access to pre-trained FILM model
+#cupy-cuda12x==13.6.0     # For CUDA 12.x (GPU acceleration)
 einops==0.8.1
 timm==1.0.20
 
@@ -59,7 +59,7 @@ filterpy==1.4.5          # Kalman filtering for motion estimation
 # ============================================================================
 # GPU Acceleration
 # ============================================================================
-onnxruntime-gpu==1.23.0
+#onnxruntime-gpu==1.23.0
 
 # ============================================================================
 # CLI and Progress Display
