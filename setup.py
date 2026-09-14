@@ -100,7 +100,11 @@ def main():
     
     # Install requirements
     print("\nInstalling Python packages...")
-    if not run_command("pip install -r requirements.txt", "Installing requirements"):
+    requirements_file = "requirements.txt"
+    if Path("requirements-intel.txt").exists():
+        requirements_file = "requirements-intel.txt"
+        print(f"Intel build detected - using {requirements_file}")
+    if not run_command(f"pip install -r {requirements_file}", "Installing requirements"):
         print("Warning: Some packages failed to install. You may need to install them manually.")
     
     # Download models
